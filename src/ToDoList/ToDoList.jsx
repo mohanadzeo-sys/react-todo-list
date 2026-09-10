@@ -1,7 +1,7 @@
 import "./ToDoList.css";
 import FilterBar from "../FilterBar/FilterBar";
 import Mission from "../Mission/mission";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export default function ToDoList() {
   const intialArray = [];
@@ -19,53 +19,29 @@ export default function ToDoList() {
     localStorage.setItem("missions", JSON.stringify(Missions));
   }, [Missions]);
 
-  const mappedMission = renderAll();
-
-  function renderAll() {
+  const mappedMission = useMemo(() => {
+    let filteredMissions;
     if (filter === "all") {
-      return Missions.map((m) => {
-        return (
-          <Mission
-            key={m.id}
-            title={m.title}
-            id={m.id}
-            isCompleted={m.isCompleted}
-            editMission={editMission}
-            onToggleComplete={toggleComplete}
-            deleteMission={deleteMission}
-          />
-        );
-      });
+      filteredMissions = Missions;
     } else if (filter === "active") {
-      return Missions.filter((m) => m.isCompleted === false).map((m) => {
-        return (
-          <Mission
-            key={m.id}
-            title={m.title}
-            id={m.id}
-            isCompleted={m.isCompleted}
-            editMission={editMission}
-            onToggleComplete={toggleComplete}
-            deleteMission={deleteMission}
-          />
-        );
-      });
+      filteredMissions = Missions.filter((m) => m.isCompleted === false);
     } else if (filter === "completed") {
-      return Missions.filter((m) => m.isCompleted === true).map((m) => {
-        return (
-          <Mission
-            key={m.id}
-            title={m.title}
-            id={m.id}
-            isCompleted={m.isCompleted}
-            editMission={editMission}
-            onToggleComplete={toggleComplete}
-            deleteMission={deleteMission}
-          />
-        );
-      });
+      filteredMissions = Missions.filter((m) => m.isCompleted === true);
     }
-  }
+    return filteredMissions.map((m) => {
+      return (
+        <Mission
+          key={m.id}
+          title={m.title}
+          id={m.id}
+          isCompleted={m.isCompleted}
+          editMission={editMission}
+          onToggleComplete={toggleComplete}
+          deleteMission={deleteMission}
+        />
+      );
+    });
+  }, [Missions, filter]);
 
   function addMission(Nextid) {
     if (inputTitle === "" || inputTitle === null) {
